@@ -16,11 +16,20 @@ TEXT = (
 
 
 def main() -> None:
+    # Runtime validation: exactly one line of UTF-8 text, 1-140 chars,
+    # not whitespace-only. Raises before writing anything.
+    if "\n" in TEXT or "\r" in TEXT:
+        raise ValueError("entry text must be a single line")
+    if not TEXT.strip():
+        raise ValueError("entry text must not be whitespace-only")
+    if not 1 <= len(TEXT) <= 140:
+        raise ValueError(f"entry text length {len(TEXT)} outside 1-140 chars")
+    data = TEXT.encode("utf-8")  # raises UnicodeEncodeError if not UTF-8
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(TEXT)
+    with open(path, "wb") as f:
+        f.write(data)
 
 
 if __name__ == "__main__":
